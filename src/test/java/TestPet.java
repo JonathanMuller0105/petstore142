@@ -8,10 +8,10 @@ import org.junit.jupiter.api.Test;
 
 
     // 2 - Classe
-public class TestUser {
+public class TestPet {
     // 2.1 atributos
     static String ct = "application/json";
-    static String uriUser = "https://petstore.swagger.io/v2/user";
+    static String uriUser = "https://petstore.swagger.io/v2/pet";
 
     // 2.2 funções e métodos
     // 2.2.1 funções e métodos comuns / úteis
@@ -32,5 +32,5 @@ public class TestUser {
 
     }
 
-    
+
     }
