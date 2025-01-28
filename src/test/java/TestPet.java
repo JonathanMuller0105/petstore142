@@ -19,6 +19,7 @@ public class TestPet {
     // 2.1 atributos
     static String ct = "application/json";
     static String uriPet = "https://petstore.swagger.io/v2/pet";
+    static int petId = 92981; // Codigo do pet
 
     // 2.2 funções e métodos
     // 2.2.1 funções e métodos comuns / úteis
@@ -34,7 +35,6 @@ public class TestPet {
     public void testPostPet() throws IOException {
         // carregar os dados do arquivo json do pet
         String jsonBody = lerArquivoJson("src/test/resources/Json/pet1.json");
-        int petId = 92981; // Codigo do pet
 
         // começa o teste via rest-assured
         // 1 - cria a instância do Rest-assured
@@ -56,6 +56,40 @@ public class TestPet {
             .body("category.name", is("cachorro"))
             .body("tags[0].name", is("vacinado"));
 
+    }
+
+
+    
+    @Test 
+    public void testGetPet(){
+        // Configura
+        // Entrada - petId que esta definido no inicio da classe
+        // Saida - Resultados experados
+
+        String petName = "Cristal";
+        String categoryName = "cachorro";
+        String tagName = "vacinado";
+
+        given()
+            .contentType(ct)
+            .log().all()
+            // quando é get ou delete não tem body
+        
+            // Execute
+        .when()
+            .get(uriPet + "/" + petId)
+
+            //valida
+        .then()
+            .log().all()
+            .statusCode(200)
+            .body("name", is(petName))
+            .body("id", is(petId))
+            .body("category.name", is(categoryName))
+            .body("tags[0].name", is(tagName)); 
+
+
+        ; // Fim do given
     }
 
 
