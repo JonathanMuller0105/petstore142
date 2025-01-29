@@ -4,9 +4,13 @@
 
 import io.restassured.response.Response; // Classe Resposta do Rest-Assured
 
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
@@ -15,11 +19,16 @@ import static org.hamcrest.CoreMatchers.*;
 
 
     // 2 - Classe
+    @TestMethodOrder(MethodOrderer.OrderAnnotation.class) // Definação de ordem dos testes
 public class TestPet {
     // 2.1 atributos
     static String ct = "application/json";
     static String uriPet = "https://petstore.swagger.io/v2/pet";
     static int petId = 92981; // Codigo do pet
+    String petName = "Cristal";
+    String categoryName = "cachorro";
+    String tagName = "vacinado";
+    String[] Status = {"available","sold"};
 
     // 2.2 funções e métodos
     // 2.2.1 funções e métodos comuns / úteis
@@ -31,7 +40,7 @@ public class TestPet {
     }
 
 
-    @Test
+    @Test @Order(1)
     public void testPostPet() throws IOException {
         // carregar os dados do arquivo json do pet
         String jsonBody = lerArquivoJson("src/test/resources/Json/pet1.json");
@@ -51,24 +60,19 @@ public class TestPet {
         .then()
             .log().all()
             .statusCode(200)
-            .body("name", is("Cristal"))
+            .body("name", is(petName))
             .body("id", is(petId))
-            .body("category.name", is("cachorro"))
-            .body("tags[0].name", is("vacinado"));
+            .body("category.name", is(categoryName))
+            .body("tags[0].name", is(tagName));
 
     }
 
 
     
-    @Test 
+    @Test @Order(2)
     public void testGetPet(){
         // Configura
-        // Entrada - petId que esta definido no inicio da classe
-        // Saida - Resultados experados
-
-        String petName = "Cristal";
-        String categoryName = "cachorro";
-        String tagName = "vacinado";
+        // Entrada e saidas definidas no nivel da classe
 
         given()
             .contentType(ct)
@@ -89,8 +93,57 @@ public class TestPet {
             .body("tags[0].name", is(tagName)); 
 
 
-        ; // Fim do given
+        // Fim do given
+    }
+
+    @Test @Order(3)
+    public void testPutPet() throws IOException{
+        // Configura
+        String jsonBody = lerArquivoJson("src/test/resources/Json/pet2.json");
+        given()
+            .contentType(ct)
+            .log().all()
+            .body(jsonBody)
+
+        //Executa
+        .when()
+            .put(uriPet)
+
+        //Valida
+        .then()
+        .log().all()
+        .statusCode(200)
+        .body("name", is(petName))    // verifica se o nome é Snoopy
+        .body("id", is(petId))         // verifique o código do pet
+        .body("category.name", is(categoryName)) // se é cachorro
+        .body("tags[0].name", is(tagName))  // se está vacinado
+        .body("status", is(Status[1]))
+        ;
     }
 
 
+    @Test @Order(4)
+    public void testDeletePet(){
+
+        given()
+        .contentType(ct)
+        .log().all()
+
+        .when()
+        .delete(uriPet + "/" + petId)
+
+        .then()
+        .log().all()
+        .statusCode(200)
+        .body("code", is(200))
+        .body("type", is("unknown"))
+        .body("message", is(String.valueOf(petId)))
+
+        ;
+
     }
+
+    // Data Driven Testing (DDT) / Teste Direcionado por Dados / Teste com Massa
+    // Teste com Json parametrizado
+
+
